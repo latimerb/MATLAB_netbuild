@@ -13,6 +13,6 @@
 
 
 module load matlab/2019b
-matlab -nodesktop -nodisplay -nosplash < BuildNetwork.m
+matlab -nodesktop -nodisplay -nosplash < BuildNetwork2.m
 
 

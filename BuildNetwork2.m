@@ -54,7 +54,7 @@ PN2AXOrecip_perc = 0.4; %reciprocal
 GAPCONN = 0.08;
 
 % Weights (mean)
-PN2AXOmean = 0.00235; PN2AXOstd = 0.1*PN2AXOmean;
+PN2AXOmean = 0.002; PN2AXOstd = 0.1*PN2AXOmean;
 PN2PVmean = 0.002; PN2PVstd = 0.1*PN2PVmean;
 PN2PNmean = 0; PN2PNstd = 0.1*PN2PNmean;
 
@@ -148,8 +148,8 @@ parfor i=0:num_cells-1
 %         end
        
        % Now get axonal delay
-       pos_incomingconns = pos(ismember(pos(:,4),incomingconns),:);
-       dist = (pos_incomingconns(:,1:3)-repmat(cell_pos,size(pos_incomingconns,1),1)).^2;
+       pos_incomingconns = pos(ismember(pos(:,1),incomingconns),:);
+       dist = (pos_incomingconns(:,2:4)-repmat(cell_pos,size(pos_incomingconns,1),1)).^2;
        dist = sqrt(sum(dist,2)); % distance in microns
        delays = dist/cond_vel; % divide by conduction velocity
        delays(delays<0.1) = 0.1; % set minimum delay (should be > dt in NEURON)
@@ -184,8 +184,8 @@ parfor i=0:num_cells-1
        connin{i+1} = outgoingvec(incomingconns,i);
        
        % Now get axonal delay
-       pos_incomingconns = pos(ismember(pos(:,4),incomingconns),:);
-       dist = (pos_incomingconns(:,1:3)-repmat(cell_pos,size(pos_incomingconns,1),1)).^2;
+       pos_incomingconns = pos(ismember(pos(:,1),incomingconns),:);
+       dist = (pos_incomingconns(:,2:4)-repmat(cell_pos,size(pos_incomingconns,1),1)).^2;
        dist = sqrt(sum(dist,2)); % distance in microns
        delays = dist/cond_vel; % divide by conduction velocity
        delays(delays<0.1) = 0.1; % set minimum delay (should be > dt in NEURON)
@@ -219,8 +219,8 @@ parfor i=0:num_cells-1
        connin{i+1} = outgoingvec(incomingconns,i);
        
        % Now get axonal delay
-       pos_incomingconns = pos(ismember(pos(:,4),incomingconns),:);
-       dist = (pos_incomingconns(:,1:3)-repmat(cell_pos,size(pos_incomingconns,1),1)).^2;
+       pos_incomingconns = pos(ismember(pos(:,1),incomingconns),:);
+       dist = (pos_incomingconns(:,2:4)-repmat(cell_pos,size(pos_incomingconns,1),1)).^2;
        dist = sqrt(sum(dist,2)); % distance in microns
        delays = dist/cond_vel; % divide by conduction velocity
        delays(delays<0.1) = 0.1; % set minimum delay (should be > dt in NEURON)
@@ -287,6 +287,8 @@ fclose(fileID);
 
 connin = cell2mat(connin);
 weightin = cell2mat(weightin);
+delayin = cell2mat(delayin);
+
 %
 %% Connectivity output file
 
@@ -297,6 +299,9 @@ fprintf(fileID1,'%d\n',num_cells); %first line should be number of cells
 
 fileID2 = fopen('weights.dat','w');
 fprintf(fileID2,'%d\n',num_cells); %first line should be number of cells
+
+fileID3 = fopen('delays.dat','w');
+fprintf(fileID3,'%d\n',num_cells); %first line should be number of cells
 
 sprintf('made fileIDs')   
 for i=0:num_cells-1
@@ -310,12 +315,15 @@ for i=0:num_cells-1
 	fprintf(fileID2,'%d',weightin(i+1,~isnan(weightin(i+1,end))));
 	fprintf(fileID2,'\n');
 
+	fprintf(fileID3,'%d\t',delayin(i+1,~isnan(delayin(i+1,1:end-1))));
+	fprintf(fileID3,'%d',delayin(i+1,~isnan(delayin(i+1,end))));
+	fprintf(fileID3,'\n');
 
 end
 toc
 fclose(fileID1);
 fclose(fileID2);
-
+fclose(fileID3);
 
 
 %% Weights output file
