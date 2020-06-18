@@ -51,6 +51,7 @@ PN2PN = 0;
 FSI2FSI = 0.26; %FSIs receive connections from 26% of surrounding FSIs
 FSI2AXO = 0.26;
 PN2AXOrecip_perc = 0.4; %reciprocal
+GAPCONN = 0.08;
 
 % Weights (mean)
 PN2AXOmean = 0.00235; PN2AXOstd = 0.1*PN2AXOmean;
@@ -72,6 +73,7 @@ AXO2PNmean = 0.003; AXO2PNstd = 0.2*AXO2PNmean;
 connin = cell(num_cells,1);
 weightin = cell(num_cells,1);
 delayin = cell(num_cells,1);
+gaps = cell(num_cells,1);
 
 PN2AXOrecip_conns = NaN(num_pyrA+num_pyrC,1000);
 
@@ -236,10 +238,39 @@ parfor i=0:num_cells-1
            round(random('logn',mu,sigma,[1,size(incomingPNconns,1)])',6);
        
        weightin{i+1} = outgoingvec(weights,i);
+       
+       num_GAP = floor(GAPCONN*size(incomingBASKconns,1));
+       gaps{i+1}(:,1) = repmat(i,num_GAP,1);
+       gaps{i+1}(:,2) = sortrows(datasample(stream,incomingBASKconns,num_GAP,'Replace',false))';
+       
+       
    end
    
 end
 
+gaps_mat = cell2mat(gaps);
+
+ids1=[num_cells+1:1:num_cells+size(gaps_mat,1)]';
+ids2=[num_cells+2+size(gaps_mat,1):1:num_cells+1+2*size(gaps_mat,1)]';
+
+gaps_mat(:,3) = ids1;
+gaps_mat(:,4) = ids2;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% STEP 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Write the output files.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sprintf('writing output files')
+
+% gaps output file
+
+fileID = fopen('gapconnections.dat','w');
+
+for i=1:size(gaps_mat,1)
+  fprintf(fileID,'%d\t%d\t%d\t%d',gaps_mat(i,1),gaps_mat(i,2),gaps_mat(i,3),gaps_mat(i,4));
+  fprintf(fileID,'\n');
+end
+
+fclose(fileID);
 
 % Position output file
 
@@ -253,10 +284,6 @@ end
 
 fclose(fileID);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% STEP 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Write the output files.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sprintf('writing output files')
 
 connin = cell2mat(connin);
 weightin = cell2mat(weightin);
@@ -289,6 +316,8 @@ toc
 fclose(fileID1);
 fclose(fileID2);
 
+
+
 %% Weights output file
 %fileID = fopen('weights.dat','w');
 %fprintf(fileID,'%d\n',num_cells); %first line should be number of cells
@@ -305,7 +334,7 @@ fclose(fileID2);
 
 
 % Shut down parallel pool
-% delete(gcp('nocreate'))
+delete(gcp('nocreate'))
  
 %% Trust but verify (connectivity)
 
