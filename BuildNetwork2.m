@@ -18,11 +18,11 @@ parpool(4);
 %%% 2) Assign weights
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Network parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-num_cells = 72000; 
-num_pyrA = 28801; 
-num_pyrC = 28801; 
-num_axo = 1420; 
-num_pv = 12978;
+num_cells = 343000; 
+num_pyrA = 137200; 
+num_pyrC = 137200; 
+num_axo = 6860; 
+num_pv = 61740;
 
 % geometry
 length = 1400;
