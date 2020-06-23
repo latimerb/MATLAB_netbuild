@@ -18,16 +18,16 @@ parpool(4);
 %%% 2) Assign weights
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Network parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-num_cells = 343000; 
-num_pyrA = 137200; 
-num_pyrC = 137200; 
-num_axo = 6860; 
-num_pv = 61740;
+num_cells = 27000; 
+num_pyrA = 10800; 
+num_pyrC = 10800; 
+num_axo = 540; 
+num_pv = 4860;
 
 % geometry
-length = 1400;
-width = 1400;
-height = 1400;
+length = 600;
+width = 600;
+height = 600;
 
 % Load or generate positions
 %dirname = 'positions.csv';
@@ -59,10 +59,11 @@ FSI2FSI = 0.26; %FSIs receive connections from 26% of surrounding FSIs
 FSI2AXO = 0.26;
 PN2AXOrecip_perc = 0.4; %reciprocal
 GAPCONN = 0.08;
+
 % Weights (mean)
 PN2AXOmean = 0.002; PN2AXOstd = 0.1*PN2AXOmean;
 PN2PVmean = 0.002; PN2PVstd = 0.1*PN2PVmean;
-PN2PNmean = 0; PN2PNstd = 0.1*PN2PNmean;
+PN2PNmean = 0.002; PN2PNstd = 0.1*PN2PNmean;
 
 PV2PVmean = 0.004; PV2PVstd = 0.1*PV2PVmean;
 PV2AXOmean = 0.008; PV2AXOstd = 0.1*PV2AXOmean;
@@ -108,19 +109,19 @@ parfor i=0:num_cells-1
   
    sprintf('Building connections. %d percent done',100*i/(num_cells-1))
 
-   
-   radius = 300; %um
+   radius = 300;
    cell_pos = pos(i+1,2:4); %projecting cell's position
    
    x2 = pos(:,2); y2 = pos(:,3); z2 = pos(:,4);
    x1 = cell_pos(1); y1 = cell_pos(2); z1 = cell_pos(3);
    
    % possible connections
-   possible_conns_ID = pos(sqrt((x2-x1).^2+(y2-y1).^2+(z2-z1).^2)<=radius,1);
+   possible_conns_ID = pos(sqrt((x2-x1).^2+(y2-y1).^2+(z2-z1).^2)<=10000,1);
+   possible_conns_dist = sqrt((x2-x1).^2+(y2-y1).^2+(z2-z1).^2);
    
    % cannot connect to itself
    possible_conns_ID(possible_conns_ID==i)=[];
-   
+   possible_conns_dist(possible_conns_ID==i)=[];
    
    % First, get all possible connections based on distance (above)
    % Then break those IDs into types
@@ -128,6 +129,11 @@ parfor i=0:num_cells-1
    possible_PN_ID = possible_conns_ID(possible_conns_ID>=pyrA(1) & possible_conns_ID<=pyrC(2));
    possible_BASK_ID = possible_conns_ID(possible_conns_ID>=bask(1) & possible_conns_ID<=bask(2));
    possible_AXO_ID = possible_conns_ID(possible_conns_ID>=axo(1) & possible_conns_ID<=axo(2));
+   
+   possible_INT_dist = possible_conns_dist(possible_conns_ID>=axo(1) & possible_conns_ID<=num_cells-1);
+   possible_PN_dist = possible_conns_dist(possible_conns_ID>=pyrA(1) & possible_conns_ID<=pyrC(2));
+   possible_BASK_dist = possible_conns_dist(possible_conns_ID>=bask(1) & possible_conns_ID<=bask(2));
+   possible_AXO_dist = possible_conns_dist(possible_conns_ID>=axo(1) & possible_conns_ID<=axo(2));
 %     scatter3(pos(possible_INT_ID+1,1),pos(possible_INT_ID+1,2),pos(possible_INT_ID+1,3),'g.');hold on;
 %     scatter3(pos(possible_PN_ID+1,1),pos(possible_PN_ID+1,2),pos(possible_PN_ID+1,3),'r.');hold on;
 %     scatter3(cell_pos(1),cell_pos(2),cell_pos(3),'m*')
@@ -135,15 +141,20 @@ parfor i=0:num_cells-1
    
    % If postsynaptic cell is pyramidal, do the following
    if i>=pyrA(1) && i<=pyrC(2) 
-       % Find connections
-       num_PN = ceil(PN2PN*size(possible_PN_ID,1));
-       num_INTS = ceil(FSI2PN*size(possible_INT_ID,1));
-       incomingPNconns = sortrows(datasample(stream,possible_PN_ID,num_PN,'Replace',false));
-       incomingINTconns = sortrows(datasample(stream,possible_INT_ID,num_INTS,'Replace',false));
-       incomingAXOconns = incomingINTconns(incomingINTconns>=axo(1) & incomingINTconns<=axo(2));
-       incomingPVconns = incomingINTconns(incomingINTconns>=bask(1) & incomingINTconns<=bask(2));
        
-       incomingconns = cat(1,incomingPNconns,incomingINTconns); %concatenate
+       possible_INT_prob = Ai2p*exp(Bi2p*possible_INT_dist);
+       possible_PN_prob = Ap2p*exp(Bp2p*possible_PN_dist);
+       possible_AXO_prob = Ai2p*exp(Bi2p*possible_AXO_dist);
+       possible_BASK_prob = Ai2p*exp(Bi2p*possible_BASK_dist);
+       
+       % Find connections
+       %incomingINTconns = sortrows(possible_INT_ID(possible_INT_prob>rand(size(possible_INT_prob,1),1)));
+       
+       incomingPNconns = sortrows(possible_PN_ID(possible_PN_prob>rand(size(possible_PN_prob,1),1)));
+       incomingAXOconns = sortrows(possible_AXO_ID(possible_AXO_prob>rand(size(possible_AXO_prob,1),1)));
+       incomingPVconns = sortrows(possible_BASK_ID(possible_BASK_prob>rand(size(possible_BASK_prob,1),1)));
+       
+       incomingconns = cat(1,incomingPNconns,incomingAXOconns, incomingPVconns); %concatenate
        
        connin{i+1} = outgoingvec(incomingconns,i);
        
@@ -170,8 +181,8 @@ parfor i=0:num_cells-1
        weights(incomingconns>=axo(1) & incomingconns<=axo(2),1) = ...
            round(random('logn',mu,sigma,[1,size(incomingAXOconns,1)])',6);
        % Transform mean and std for lognormal
-       mu = log((PV2PNmean^2)/sqrt(PN2PVstd^2+PN2PVmean^2));
-       sigma = sqrt(log(PN2PVstd^2/(PN2PVmean^2)+1));
+       mu = log((PV2PNmean^2)/sqrt(PV2PNstd^2+PV2PNmean^2));
+       sigma = sqrt(log(PV2PNstd^2/(PV2PNmean^2)+1));
        weights(incomingconns>=bask(1) & incomingconns<=bask(2),1) = ...
            round(random('logn',mu,sigma,[1,size(incomingPVconns,1)])',6);
        
@@ -181,9 +192,14 @@ parfor i=0:num_cells-1
    % If postsynaptic cell is axo, do this
    if i>=axo(1) && i<=axo(2) 
        %Find connections
-       num_PN = ceil(PN2AXO*size(possible_PN_ID,1));
+       possible_PN_prob = Ap2i*exp(Bp2i*possible_PN_dist);
+       
+       
+       incomingPNconns = sortrows(possible_PN_ID(possible_PN_prob>rand(size(possible_PN_prob,1),1)));
+       
+       possible_BASK_ID = possible_BASK_ID(possible_BASK_dist<=300);
        num_BASK =  ceil(FSI2AXO*size(possible_BASK_ID,1));
-       incomingPNconns = sortrows(datasample(stream,possible_PN_ID,num_PN,'Replace',false));
+       
        incomingBASKconns = sortrows(datasample(stream,possible_BASK_ID,num_BASK,'Replace',false));
        
        incomingconns = cat(1,incomingPNconns,incomingBASKconns); %concatenate
@@ -214,12 +230,14 @@ parfor i=0:num_cells-1
    
    if i>=bask(1) && i<=bask(2) 
        %Find connections
-       num_PN = ceil(PN2FSI*size(possible_PN_ID,1));
-       num_BASK =  ceil(FSI2FSI*size(possible_BASK_ID,1));
-       incomingPNconns = sortrows(datasample(stream,possible_PN_ID,num_PN,'Replace',false));
+       possible_PN_prob = Ap2i*exp(Bp2i*possible_PN_dist);
+       
+       incomingPNconns = sortrows(possible_PN_ID(possible_PN_prob>rand(size(possible_PN_prob,1),1)));
+       
+       possible_BASK_ID = possible_BASK_ID(possible_BASK_dist<=300);
+       num_BASK =  ceil(FSI2AXO*size(possible_BASK_ID,1));
+       
        incomingBASKconns = sortrows(datasample(stream,possible_BASK_ID,num_BASK,'Replace',false));
-       %incomingAXOconns = incomingINTconns(incomingINTconns>=axo(1) & incomingINTconns<=axo(2));
-       %incomingPVconns = incomingINTconns(incomingINTconns>=bask(1) & incomingINTconns<=bask(2));
        
        incomingconns = cat(1,incomingPNconns,incomingBASKconns); %concatenate
        connin{i+1} = outgoingvec(incomingconns,i);
