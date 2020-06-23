@@ -72,110 +72,9 @@ p=p';
 
 location=zeros(NCELL,3);
 type=zeros(NCELL,1);
-%put in TypeA
-% for i=1:Anone;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=1;
-%     type(i,1)=1;
-%     NM(i,1)=0;      %%%none type
-% end
 index=[1:TypeA];
 location(index,1:3)=loc(p(index),1:3);
 type(index,1)=1;
-% NM(index,1)=0;
-
-
-
-% for i=Anone+1:Anone+ADA;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=1;
-%     type(i,1)=1;
-%     NM(i,1)=1;     %%%DA type
-% end
-% index=[Anone+1:Anone+ADA];
-% location(index,1:3)=loc(p(index),1:3);
-% type(index,1)=1;
-% NM(index,1)=1;
-
-% for i=Anone+ADA+1:Anone+ADA+ANE;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=1;
-%     type(i,1)=1;
-%     NM(i,1)=2;   %%%NE type
-% end
-
-% index=[Anone+ADA+1:Anone+ADA+ANE];
-% location(index,1:3)=loc(p(index),1:3);
-% type(index,1)=1;
-% NM(index,1)=2;
-
-
-% for i=Anone+ADA+ANE+1:TypeA;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=1;
-%     type(i,1)=1;
-%     NM(i,1)=3; %%%DANE type
-% end
-
-% index=[Anone+ADA+ANE+1:TypeA];
-% location(index,1:3)=loc(p(index),1:3);
-% type(index,1)=1;
-% NM(index,1)=3;
-
-% %put in TypeB
-% for i=TypeA+1:TypeA+Bnone;
-% location(i,1)=loc(p(i),1);
-% location(i,2)=loc(p(i),2);
-% location(i,3)=loc(p(i),3);
-% location(i,4)=2;
-% type(i,1)=6;
-% NM(i,1)=0;
-% end
-%
-% for i=TypeA+Bnone+1:TypeA+Bnone+BDA;
-% location(i,1)=loc(p(i),1);
-% location(i,2)=loc(p(i),2);
-% location(i,3)=loc(p(i),3);
-% location(i,4)=2;
-% type(i,1)=6;
-% NM(i,1)=1;
-% end
-%
-% for i=TypeA+Bnone+BDA+1:TypeA+Bnone+BDA+BNE;
-% location(i,1)=loc(p(i),1);
-% location(i,2)=loc(p(i),2);
-% location(i,3)=loc(p(i),3);
-% location(i,4)=2;
-% type(i,1)=6;
-% NM(i,1)=2;
-% end
-%
-% for i=TypeA+Bnone+BDA+BNE+1:TypeA+TypeB;
-% location(i,1)=loc(p(i),1);
-% location(i,2)=loc(p(i),2);
-% location(i,3)=loc(p(i),3);
-% location(i,4)=2;
-% type(i,1)=6;
-% NM(i,1)=3;
-% end
-
-%put in TypeC
-% for i=TypeA+TypeB+1:TypeA+TypeB+Cnone;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=3;
-%     type(i,1)=10;
-%     NM(i,1)=0;
-% end
 
 index=[TypeA+TypeB+1:TypeA+TypeB+TypeC];
 location(index,1:3)=loc(p(index),1:3);
@@ -183,70 +82,11 @@ location(index,1:3)=loc(p(index),1:3);
 
 
 type(index,1)=10;
-% NM(index,1)=0;
-
-
-
-
-
-
-
-
-
-
-
-% for i=TypeA+TypeB+Cnone+1:TypeA+TypeB+Cnone+CDA;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=3;
-%     type(i,1)=10;
-%     NM(i,1)=1;
-% end
-% index=[TypeA+TypeB+Cnone+1:TypeA+TypeB+Cnone+CDA];
-% location(index,1:3)=loc(p(index),1:3);
-% type(index,1)=10;
-% NM(index,1)=1;
-
-
-% for i=TypeA+TypeB+Cnone+CDA+1:TypeA+TypeB+Cnone+CDA+CNE;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=3;
-%     type(i,1)=10;
-%     NM(i,1)=2;
-% end
-% index=[TypeA+TypeB+Cnone+CDA+1:TypeA+TypeB+Cnone+CDA+CNE];
-% location(index,1:3)=loc(p(index),1:3);
-% type(index,1)=10;
-% NM(index,1)=2;
-
-% for i=TypeA+TypeB+Cnone+CDA+CNE+1:TypeA+TypeB+TypeC;
-%     location(i,1)=loc(p(i),1);
-%     location(i,2)=loc(p(i),2);
-%     location(i,3)=loc(p(i),3);
-%     location(i,4)=3;
-%     type(i,1)=10;
-%     NM(i,1)=3;
-% end
-% index=[TypeA+TypeB+Cnone+CDA+CNE+1:TypeA+TypeB+TypeC];
-% location(index,1:3)=loc(p(index),1:3);
-% type(index,1)=10;
-% NM(index,1)=3;
-
 
 %put in Interneuorn
 p=randperm(m,INTCELL);
 p=p';
 
-% for i=1:INTCELL;
-%     location(i+PCELL,1)=loca(p(i),1);
-%     location(i+PCELL,2)=loca(p(i),2);
-%     location(i+PCELL,3)=loca(p(i),3);
-%     location(i+PCELL,4)=4;
-%     type(i+PCELL,1)=100;
-% end
 
 index=[1:INTCELL];
 location(index+PCELL,1:3)=loca(p(index),1:3);
@@ -254,17 +94,6 @@ type(index+PCELL,1)=100;
 % NM(index+PCELL,1)=0;
 
 save('location','location');
-%%%%select location on the edges%%%%%%
-% loc_edge(:,1:3)=location(find(location(:,1)>2.2|location(:,1)<0.3|location(:,2)>0.7|location(:,2)<0.3),:);
-% 
-% loc_edge_ID(:,1)=find(location(:,1)>2.2|location(:,1)<0.3|location(:,2)>0.7|location(:,2)<0.3);
-
-
-figure
-x_p=location(1:PCELL,1);y_p=location(1:PCELL,2);z_p=location(1:PCELL,3);
-x_I=location(PCELL+1:NCELL,1);y_I=location(PCELL+1:NCELL,2);z_I=location(PCELL+1:NCELL,3);
-scatter3(x_p,y_p,z_p,'blue','filled');hold on;
-scatter3(x_I,y_I,z_I,'filled','red');hold on;
 
 
 % figure 

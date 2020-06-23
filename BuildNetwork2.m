@@ -43,16 +43,22 @@ sprintf('pos size: %d',size(pos,1))
 cond_vel = 500; %um/ms
 
 % Connectivity
+% Below are coefficients of an exponential function that describes the connectivity percentage
+% in terms of distance. Notice the negative coefficient means probability of connection
+% decreases with distance.
+Ap2p=0.01366;Bp2p=-0.008618;
+Ap2i=0.3217;Bp2i=-0.005002;
+Ai2p=0.313*2.14;Bi2p=-0.004029;%%%2.14 is the fator suggested by Drew in the email ~10/21/2019
+
 PN2FSI = 0.12; %FSIs receive connections from 12% of surrounding PNs
 PN2AXO = 0.12;
 FSI2PN = 0.34; %PNs receive connections from 34% of surrounding FSIs
-AXO2FSI = 0;
+AXO2FSI = 0
 PN2PN = 0;
 FSI2FSI = 0.26; %FSIs receive connections from 26% of surrounding FSIs
 FSI2AXO = 0.26;
 PN2AXOrecip_perc = 0.4; %reciprocal
 GAPCONN = 0.08;
-
 % Weights (mean)
 PN2AXOmean = 0.002; PN2AXOstd = 0.1*PN2AXOmean;
 PN2PVmean = 0.002; PN2PVstd = 0.1*PN2PVmean;
