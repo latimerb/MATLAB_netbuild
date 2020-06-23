@@ -185,6 +185,11 @@ parfor i=0:num_cells-1
        sigma = sqrt(log(PV2PNstd^2/(PV2PNmean^2)+1));
        weights(incomingconns>=bask(1) & incomingconns<=bask(2),1) = ...
            round(random('logn',mu,sigma,[1,size(incomingPVconns,1)])',6);
+       % Transform mean and std for lognormal
+       mu = log((PN2PNmean^2)/sqrt(PN2PNstd^2+PN2PNmean^2));
+       sigma = sqrt(log(PN2PNstd^2/(PN2PNmean^2)+1));
+       weights(incomingconns>=pyrA(1) & incomingconns<=pyrC(2),1) = ...
+           round(random('logn',mu,sigma,[1,size(incomingPNconns,1)])',6);
        
        weightin{i+1} = outgoingvec(weights,i);
    end
