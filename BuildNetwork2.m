@@ -46,32 +46,29 @@ cond_vel = 500; %um/ms
 % Below are coefficients of an exponential function that describes the connectivity percentage
 % in terms of distance. Notice the negative coefficient means probability of connection
 % decreases with distance.
-Ap2p=0.01366;Bp2p=-0.008618;
+%Ap2p=0.01366;Bp2p=-0.008618;
+Ap2p=0.0;Bp2p=-0.008618;
 Ap2i=0.3217;Bp2i=-0.005002;
 Ai2p=0.313*2.14;Bi2p=-0.004029;%%%2.14 is the fator suggested by Drew in the email ~10/21/2019
 
-PN2FSI = 0.12; %FSIs receive connections from 12% of surrounding PNs
-PN2AXO = 0.12;
-FSI2PN = 0.34; %PNs receive connections from 34% of surrounding FSIs
 AXO2FSI = 0
-PN2PN = 0;
 FSI2FSI = 0.26; %FSIs receive connections from 26% of surrounding FSIs
 FSI2AXO = 0.26;
 PN2AXOrecip_perc = 0.4; %reciprocal
 GAPCONN = 0.08;
 
 % Weights (mean)
-PN2AXOmean = 0.002; PN2AXOstd = 0.1*PN2AXOmean;
-PN2PVmean = 0.002; PN2PVstd = 0.1*PN2PVmean;
-PN2PNmean = 0.002; PN2PNstd = 0.1*PN2PNmean;
+PN2AXOmean = 0.0005; PN2AXOstd = 0.5*PN2AXOmean;
+PN2PVmean = 0.003; PN2PVstd = 0.5*PN2PVmean;
+PN2PNmean = 0.000002; PN2PNstd = 0.1*PN2PNmean;
 
-PV2PVmean = 0.004; PV2PVstd = 0.1*PV2PVmean;
-PV2AXOmean = 0.008; PV2AXOstd = 0.1*PV2AXOmean;
-PV2PNmean = 0.008; PV2PNstd = 0.1*PV2PNmean;
+PV2PVmean = 0.001; PV2PVstd = 0.5*PV2PVmean;
+PV2AXOmean = 0.001; PV2AXOstd = 0.5*PV2AXOmean;
+PV2PNmean = 0.001; PV2PNstd = 0.5*PV2PNmean;
 
-AXO2PVmean = 0.0; AXO2PVstd = 0.1*AXO2PVmean;
-AXO2AXOmean = 0.0; AXO2AXOstd = 0.1*AXO2AXOmean;
-AXO2PNmean = 0.003; AXO2PNstd = 0.2*AXO2PNmean; 
+AXO2PVmean = 0.0; AXO2PVstd = 0.5*AXO2PVmean;
+AXO2AXOmean = 0.0; AXO2AXOstd = 0.5*AXO2AXOmean;
+AXO2PNmean = 0.003; AXO2PNstd = 0.5*AXO2PNmean; 
 
 
 %%%%%%%%%%%%%%%%%%%%%%% Initialize matrices %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -240,7 +237,7 @@ parfor i=0:num_cells-1
        incomingPNconns = sortrows(possible_PN_ID(possible_PN_prob>rand(size(possible_PN_prob,1),1)));
        
        possible_BASK_ID = possible_BASK_ID(possible_BASK_dist<=300);
-       num_BASK =  ceil(FSI2AXO*size(possible_BASK_ID,1));
+       num_BASK =  ceil(FSI2FSI*size(possible_BASK_ID,1));
        
        incomingBASKconns = sortrows(datasample(stream,possible_BASK_ID,num_BASK,'Replace',false));
        
@@ -268,9 +265,9 @@ parfor i=0:num_cells-1
        
        weightin{i+1} = outgoingvec(weights,i);
        
-       num_GAP = floor(GAPCONN*size(incomingBASKconns,1));
+       num_GAP = floor(GAPCONN*size(possible_BASK_ID,1));
        gaps{i+1}(:,1) = repmat(i,num_GAP,1);
-       gaps{i+1}(:,2) = sortrows(datasample(stream,incomingBASKconns,num_GAP,'Replace',false))';
+       gaps{i+1}(:,2) = sortrows(datasample(stream,possible_BASK_ID,num_GAP,'Replace',false))';
        
        
    end
@@ -303,7 +300,7 @@ fclose(fileID);
 
 % Position output file
 
-fileID = fopen('position.dat','w');
+fileID = fopen('position_full.dat','w');
 fprintf(fileID,'%d\n',num_cells); %first line should be number of cells
 
 for i=0:num_cells-1
@@ -323,13 +320,13 @@ delayin = cell2mat(delayin);
 
 tic
 
-fileID1 = fopen('connectivity.dat','w');
+fileID1 = fopen('connectivity_full.dat','w');
 fprintf(fileID1,'%d\n',num_cells); %first line should be number of cells
 
-fileID2 = fopen('weights.dat','w');
+fileID2 = fopen('weights_full.dat','w');
 fprintf(fileID2,'%d\n',num_cells); %first line should be number of cells
 
-fileID3 = fopen('delays.dat','w');
+fileID3 = fopen('delays_full.dat','w');
 fprintf(fileID3,'%d\n',num_cells); %first line should be number of cells
 
 sprintf('made fileIDs')   
